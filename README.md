@@ -14,7 +14,7 @@ python locks-editor.py
 
 An editor window should pop up. Start coding! You can find examples at `examples/`.
 
-You can run a lox program by using the interpreter as:
+You can run a locks program by using the interpreter as:
 
 ``` console
 python locks-interpreter.py <locks-filename>
