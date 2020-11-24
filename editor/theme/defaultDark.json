@@ -1,0 +1,12 @@
+{
+    "name": "Default Dark",
+    "background": "#030d22",
+    "foreground": "#ffffff",
+    "selectBackground": "#35008b",
+    "inactiveselectbackground": "#310072",
+    "cursorColor": "#ee0077",
+    "keywords": "#ff2cf1",
+    "functionName": "#ffd400",
+    "strings": "#0ef3ff",
+    "comments": "#0098df"
+}

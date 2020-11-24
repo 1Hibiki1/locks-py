@@ -1,0 +1,85 @@
+/*
+Tic Tac Toe for 2 players
+based on https://gist.github.com/horstjens/4adc56d3de6c2392f440
+*/
+
+var choices = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+var playerOneTurn = true;
+var winner = false;
+
+fun printBoard(){
+    println( '\n -----');
+    println( '|' + choices[0] + '|' + choices[1] + '|' + choices[2] + '|');
+    println( ' -----');
+    println( '|' + choices[3] + '|' + choices[4] + '|' + choices[5] + '|');
+    println( ' -----');
+    println( '|' + choices[6] + '|' + choices[7] + '|' + choices[8] + '|');
+    println( ' -----\n');
+}
+
+var count = 0;
+var isDraw = false;
+
+while(!winner){
+
+    if(count >= 9){
+        isDraw = true;
+        println("Draw!");
+        break;
+    }
+
+    printBoard();
+
+    if(playerOneTurn){
+        count = count + 1;
+        println("Player 1:");
+    }
+    else{
+        count = count + 1;
+        println("Player 2:");
+    }
+
+    var choice = input(">> ");
+    
+    if(!isinteger(choice)){
+        println("\nPlease enter an integer");
+        continue;
+    }
+
+    choice = int(choice);
+
+    if(choices[choice - 1] == 'X' or choices [choice-1] == 'O'){
+        println("illegal move, plase try again");
+        continue;
+    }
+
+    if(playerOneTurn)
+        choices[choice - 1] = 'X';
+    else
+        choices[choice - 1] = 'O';
+
+    playerOneTurn = !playerOneTurn;
+
+    for(var x = 0; x < 3; x = x + 1){
+        var y = x * 3;
+        if(choices[y] == choices[(y + 1)] and choices[y] == choices[(y + 2)]){
+            winner = true;
+            printBoard();
+        }
+        if(choices[x] == choices[(x + 3)] and choices[x] == choices[(x + 6)]){
+            winner = true;
+            printBoard();
+        }
+    }
+
+    if((choices[0] == choices[4] and choices[0] == choices[8]) or 
+        (choices[2] == choices[4] and choices[4] == choices[6])){
+            winner = true;
+            printBoard();
+        }
+}
+
+if(!isDraw)
+    println("Player " + str(int(playerOneTurn) + 1) + " wins!\n");
+
+

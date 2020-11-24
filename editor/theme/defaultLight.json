@@ -1,0 +1,12 @@
+{
+    "name": "Default Light",
+    "background": "#fafafa",
+    "foreground": "#383A42",
+    "selectBackground": "#e5e5e6",
+    "inactiveselectbackground": "#e5e5e6",
+    "cursorColor": "#000000",
+    "keywords": "#a626a4",
+    "functionName": "#4078F2",
+    "strings": "#50A14F",
+    "comments": "#a0a1a7"
+}

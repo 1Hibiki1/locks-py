@@ -1,0 +1,81 @@
+Based on the Lox grammar - https://craftinginterpreters.com/appendix-i.html
+
+--START---
+
+
+program        → declaration* EOF
+
+declaration    → funDecl
+               | varDecl
+               | statement
+
+funDecl        → "fun" IDENTIFIER "(" parameters? ")" block
+
+varDecl        → "var" IDENTIFIER ("=" expression)? ";"
+
+statement      → exprStmt
+               | assignStmt
+               | ifStmt
+               | returnStmt
+               | continueStmt
+               | breakStmt
+               | whileStmt
+               | forStmt
+               | block
+
+exprStmt       → expression ";"
+
+assignStmt     → (IDENTIFIER | array_access) "=" expression ";"
+
+ifStmt         → "if" "(" expression ")" statement
+                 (  ("elsif" statement)*
+                     "else" statement )?
+
+returnStmt     → "return" expression? ";"
+continueStmt     → "continue" ";"
+breakStmt     → "break" ";"
+
+whileStmt      → "while" "(" expression ")" statement
+
+forStmt        → "for" "(" ( varDecl | exprStmt | assignStmt | ";" )
+                           expression? ";"
+                           (assignStmt)? ")" statement
+
+block          → "{" declaration* "}"
+
+expression     → logic_or
+
+logic_or       → logic_and ( "or" logic_and )*
+
+logic_and      → equality ( "and" equality )*
+
+equality       → comparison ( ( "!=" | "==" ) comparison )*
+
+comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )*
+
+term           → factor ( ( "-" | "+" ) factor )*
+
+factor         → unary ( ( "/" | "*" | "%" ) unary )*
+
+unary          → ( "!" | "-" ) unary | array_access
+
+array_access   → call ("[" expression "]")*
+
+call           → primary ( "(" arguments? ")" )?
+
+primary        → "true" | "false" | "nil"
+               | NUMBER | STRING | IDENTIFIER | "(" expression ")" | "[" arguments? "]"
+
+parameters     → IDENTIFIER ( "," IDENTIFIER )*
+
+arguments      → expression ( "," expression )*
+
+NUMBER         → DIGIT+ ( "." DIGIT+ )?
+
+STRING         → '"' <any char except '"'>* '"'
+
+IDENTIFIER     → ALPHA ( ALPHA | DIGIT )*
+
+ALPHA          → "a" ... "z" | "A" ... "Z" | "_"
+
+DIGIT          → "0" ... "9"
