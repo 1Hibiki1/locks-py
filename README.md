@@ -2,6 +2,40 @@
 
 Locks is an imperative, dynamically typed, procedure oriented scripting language based on the [lox](https://github.com/munificent/craftinginterpreters) language. Locks-py is the python implementation of locks. While locks and lox share almost the same grammar, the locks implementation is not based on that of lox. This was made as a project for an introductory programming course.
 
+## Contents
+
+- [Usage](#usage)
+- [The Locks language](#the-locks-language)
+  - [IO](#io)
+  - [Comments](#comments)
+  - [Keywords and Identifiers](#keywords-and-identifiers)
+  - [Datatypes](#datatypes)
+  - [Variables](#variables)
+  - [Statements](#statements)
+    - [Expression Statement](#expression-statement)
+    - [Assign Statement](#assign-statement)
+    - [If Statement](#if-statement)
+  - [Loops](#loops)
+    - [While loop](#while-loop)
+    - [For loop](#for-loop)
+  - [Functions](#functions)
+  - [Builtin functions](#builtin-functions)
+    - [IO functions](#io-functions)
+    - [String and Array functions](#string-and-array-functions)
+      - [String](#string)
+      - [Both](#both)
+    - [Type conversion](#type-conversion)
+- [The Locks VM](#the-locks-vm)
+  - [Byte code Format](#byte-code-format)
+    - [Constants Pool](#constants-pool)
+  - [Opcodes](#opcodes)
+- [Editor](#editor)
+  - [Opening files](#opening-files)
+  - [Saving files](#saving-files)
+  - [Running Locks programs](#running-locks-programs)
+  - [Customizing](#customizing)
+  - [Keyboard shortcuts](#keyboard-shortcuts)
+
 ## Usage
 
 Note: You will need to have python 3 installed. This project was tested with python 3.8.3.
@@ -81,11 +115,11 @@ var 12r; //invalid!
 
 Locks supports the following datatypes:
 
-* `Nil`: Used to define a null value, denoted by the `nil` keyword
-* `Number`: Can be 64 bit signed integer, or double precision floating-point numbers. For example: `135, 31.63, -1331`
-* `String`: Sequence of ascii characters surrounded by `"`. For example: `"Hello!"`
-* `Boolean`: Can be `true` or `false`
-* `Array`: A sequence of Locks datatypes, surrounded by `[` and `]` and separated by `,`. For example: `[1, "hello", [true, 2]]`
+- `Nil`: Used to define a null value, denoted by the `nil` keyword
+- `Number`: Can be 64 bit signed integer, or double precision floating-point numbers. For example: `135, 31.63, -1331`
+- `String`: Sequence of ascii characters surrounded by `"`. For example: `"Hello!"`
+- `Boolean`: Can be `true` or `false`
+- `Array`: A sequence of Locks datatypes, surrounded by `[` and `]` and separated by `,`. For example: `[1, "hello", [true, 2]]`
 
 ### Variables
 
@@ -101,28 +135,28 @@ var b = 5;  // declare and assign
 
 Locks supports the following statements (apart from loops, return, continue and break statements):
 
-* [Expression Statement](#expression-statement)
-* [Assign Statement](#assign-statement)
-* [If Statement](#if-statement)
+- [Expression Statement](#expression-statement)
+- [Assign Statement](#assign-statement)
+- [If Statement](#if-statement)
 
 #### Expression Statement
 
 Locks supports the following operators for arithmetic and logical expressions:
 
-* `+`: Adds two numbers or concatenates two strings. Both operands must be of the same type (i.e. String or Number)
-* `-`: Subtracts right operand from left operand. Both operands must be numbers
-* `*`: Multiplies two numbers
-* `\`: Divides two numbers
-* `%`: Gives remainder when left operand is divided by right operand (modulo)
+- `+`: Adds two numbers or concatenates two strings. Both operands must be of the same type (i.e. String or Number)
+- `-`: Subtracts right operand from left operand. Both operands must be numbers
+- `*`: Multiplies two numbers
+- `\`: Divides two numbers
+- `%`: Gives remainder when left operand is divided by right operand (modulo)
 
-* `==`: Returns `true` if left operand is equal to right operand, otherwise `false`
-* `!=`: Returns `true` if left operand is not equal to right operand, otherwise `false`
-* `<`: Returns `true` if left operand is less than right operand, otherwise `false`. Both operands must be numbers
-* `>`: Returns `true` if left operand is equal to right operand, otherwise `false`. Both operands must be numbers
-* `<=`: Returns `true` if left operand is equal to right operand, otherwise `false`. Both operands must be numbers
-* `>=`: Returns `true` if left operand is equal to right operand, otherwise `false`. Both operands must be numbers
-* `and`: Returns `true` if both left and right operands are truthy, otherwise `false`
-* `or`: Returns `true` if either the left or the right operand is truthy, otherwise `false`
+- `==`: Returns `true` if left operand is equal to right operand, otherwise `false`
+- `!=`: Returns `true` if left operand is not equal to right operand, otherwise `false`
+- `<`: Returns `true` if left operand is less than right operand, otherwise `false`. Both operands must be numbers
+- `>`: Returns `true` if left operand is equal to right operand, otherwise `false`. Both operands must be numbers
+- `<=`: Returns `true` if left operand is equal to right operand, otherwise `false`. Both operands must be numbers
+- `>=`: Returns `true` if left operand is equal to right operand, otherwise `false`. Both operands must be numbers
+- `and`: Returns `true` if both left and right operands are truthy, otherwise `false`
+- `or`: Returns `true` if either the left or the right operand is truthy, otherwise `false`
 
 #### Assign Statement
 
@@ -235,9 +269,9 @@ var x = a; // ERROR! can't assign a function to a variable
 
 #### IO functions
 
-* `print`: Accepts 1 argument and prints it to stdout
-* `println`: Accepts 1 argument and prints it to stdout, with newline
-* `input`: Accepts 1 argument and prints it to stdout, and accepts input from stdin
+- `print`: Accepts 1 argument and prints it to stdout
+- `println`: Accepts 1 argument and prints it to stdout, with newline
+- `input`: Accepts 1 argument and prints it to stdout, and accepts input from stdin
 
 For usage of these functions, check [IO](#io).
 
@@ -245,16 +279,16 @@ For usage of these functions, check [IO](#io).
 
 ##### String
 
-* `isinteger`: Accepts a string as argument, returns true if the string is a valid integer, false otherwise
+- `isinteger`: Accepts a string as argument, returns true if the string is a valid integer, false otherwise
 
 ##### Both
 
-* `len`: Accepts a string or an array as argument, and returns its length
+- `len`: Accepts a string or an array as argument, and returns its length
 
 #### Type conversion
 
-* `int`: Accepts 1 argument, converts it to an integer, and returns it
-* `str`: Accepts 1 argument, converts it to a string, and returns it
+- `int`: Accepts 1 argument, converts it to an integer, and returns it
+- `str`: Accepts 1 argument, converts it to a string, and returns it
 
 ## The Locks VM
 
@@ -418,6 +452,6 @@ Theme example: `defaultDark.json`
 
 ### Keyboard shortcuts
 
-* `Ctrl+o`: Open file
-* `Ctrl+s`: Save currently open file
-* `Tab` and `Shift+Tab`: Add/remove 4-space indent to selection or current line
+- `Ctrl+o`: Open file
+- `Ctrl+s`: Save currently open file
+- `Tab` and `Shift+Tab`: Add/remove 4-space indent to selection or current line
