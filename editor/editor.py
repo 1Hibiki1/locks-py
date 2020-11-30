@@ -24,11 +24,13 @@ class PreferencesScreen:
 
         self._fontVar = None
         self._themeVar = None
+        self._pyOptionTextbox = None
         self._applyButton = ttk.Button(self.wnd, text = "Apply Changes", style="editor.TButton")
 
         self._themeDict = dict()
 
         self._preferences = p
+
 
     def showWindow(self) -> None:
         self._makeUI()
@@ -39,9 +41,11 @@ class PreferencesScreen:
         self._applyButton.config(command=lambda: editor.applySettings(
             {
                 "fontSize": int(self._fontVar.get()),
-                "theme" : self._themeDict[self._themeVar.get()]
+                "theme" : self._themeDict[self._themeVar.get()],
+                "pyinterp": self._pyOptionTextbox.get()
             }
         ))
+
 
     def _makeFontFrame(self) -> None:
         fontFrame = tk.Frame(self.wnd)
@@ -56,6 +60,7 @@ class PreferencesScreen:
         fontLabel.pack(side="left")
         fontMenu.pack(side="right")
         fontFrame.pack(padx=30,pady=20)
+
 
     def _makeThemeFrame(self) -> None:
         themeFrame = tk.Frame(self.wnd)
@@ -82,9 +87,23 @@ class PreferencesScreen:
         themeMenu.pack(side="right")
         themeFrame.pack(padx=50,pady=20)
 
+
+    def _makePyInterpreterOptionFrame(self) -> None:
+        pyOptionFrame = tk.Frame(self.wnd)
+        pyOptionLabel = tk.Label(pyOptionFrame, text="Python interpreter: ")
+
+        self._pyOptionTextbox = tk.Entry(pyOptionFrame)
+        self._pyOptionTextbox.delete(0, tk.END)
+        self._pyOptionTextbox.insert(0, self._preferences["pyinterp"])
+
+        pyOptionLabel.pack()
+        self._pyOptionTextbox.pack(ipady=5, ipadx=5)
+        pyOptionFrame.pack(pady=20)
+
     def _makeUI(self) -> None:
         self._makeFontFrame()
         self._makeThemeFrame()
+        self._makePyInterpreterOptionFrame()
         self._applyButton.pack(ipady=5, ipadx=5, pady=20)
 
     def handleCloseFunction(self, f) -> None:
@@ -100,6 +119,7 @@ class Editor:
         # default preferences
         self._preferences = {
             "fontSize": 16,
+            "pyinterp": "python",
             "theme": "defaultDark.json"
         }
         self._loadPreferences()
@@ -613,7 +633,10 @@ class Editor:
             if r:
                 self._saveFile()
 
-        subprocess.Popen(f'python "{os.getcwd().replace(os.sep, "/")}/locks-interpreter.py" "{self._curOpenFile}"', creationflags=subprocess.CREATE_NEW_CONSOLE)
+        if platform.system() == "Windows":
+            subprocess.Popen(f'{self._preferences["pyinterp"]} "{os.getcwd().replace(os.sep, "/")}/locks-interpreter.py" "{self._curOpenFile}"', creationflags=subprocess.CREATE_NEW_CONSOLE)
+        else:
+            subprocess.Popen(f'{self._preferences["pyinterp"]} "{os.getcwd().replace(os.sep, "/")}/locks-interpreter.py" "{self._curOpenFile}"', shell=True)
 
     def _runDebug(self, e=None) -> None:
         if self._curOpenFile == "untitled":
@@ -624,4 +647,8 @@ class Editor:
             if r:
                 self._saveFile()
 
-        subprocess.Popen(f'python "{os.getcwd().replace(os.sep, "/")}/locks-interpreter.py" "{self._curOpenFile}" -d', creationflags=subprocess.CREATE_NEW_CONSOLE)
+        if platform.system() == "Windows":
+            subprocess.Popen(f'{self._preferences["pyinterp"]} "{os.getcwd().replace(os.sep, "/")}/locks-interpreter.py" "{self._curOpenFile}" -d', creationflags=subprocess.CREATE_NEW_CONSOLE)
+        else:
+            subprocess.Popen(f'{self._preferences["pyinterp"]} "{os.getcwd().replace(os.sep, "/")}/locks-interpreter.py" "{self._curOpenFile}" -d', shell=True)
+

@@ -1,4 +1,5 @@
 {
     "fontSize": 16,
+    "pyinterp": "python",
     "theme": "defaultDark.json"
 }
