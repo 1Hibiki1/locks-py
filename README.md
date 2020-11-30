@@ -52,7 +52,7 @@ An editor window should pop up. Start coding! You can find examples at `examples
 To run a locks program from the command line, run
 
 ``` console
-python locks-interpreter.py <path>
+python locks-interpreter.py <path-to-locks-file>
 ```
 
 The interpreter will use the VM to run the program by default.
