@@ -424,7 +424,11 @@ A file can be saved through the `File -> Save` or `File -> Save As` option, as a
 
 ### Running Locks programs
 
-A currently open locks file can be run through `Run -> Run` or `Run -> Run (debug)` options. `Run` will run the program through the VM, and `Run (debug)` will run the program through the tree walk interpreter. Note that running the program through the VM exits the terminal as soon as execution is complete. An empty `input("")` can be added to the end of the program to stop this from happening.
+A currently open locks file can be run through `Run -> Run` or `Run -> Run (debug)`. `Run` will run the program through the VM, and `Run (debug)` will run the program through the tree walk interpreter.
+
+A new terminal window will be opened on Windows for code execution. Note that running the program through the VM exits the terminal as soon as execution is complete, an `input("")` can be added to the end of the locks program to stop this from happening.
+
+On linux, the locks program will execute in the terminal that the editor was run from.
 
 ### Customizing
 
