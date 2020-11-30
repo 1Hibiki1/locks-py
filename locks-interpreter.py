@@ -115,8 +115,11 @@ def main():
         try:
             t0 = time()
 
-            i = Interpeter()
-            i.visit(ast)
+            try:
+                i = Interpeter()
+                i.visit(ast)
+            except:
+                print("The interpreter crashed! Check the Known Bugs sections in the Locks github repository (https://github.com/1Hibiki1/locks-py) or open an issue.")
 
             print(f"\nProcess finished in {time() - t0} seconds with return code 0")
             input("Press Enter to continue...")

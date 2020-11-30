@@ -35,6 +35,7 @@ Locks is an imperative, dynamically typed, procedure oriented scripting language
   - [Running Locks programs](#running-locks-programs)
   - [Customizing](#customizing)
   - [Keyboard shortcuts](#keyboard-shortcuts)
+- [Known Bugs](#known-bugs)
 
 ## Usage
 
@@ -455,3 +456,16 @@ Theme example: `defaultDark.json`
 - `Ctrl+o`: Open file
 - `Ctrl+s`: Save currently open file
 - `Tab` and `Shift+Tab`: Add/remove 4-space indent to selection or current line
+
+## Known Bugs
+
+- The tree walk interpreter crashes when the lvalue of an assign statement tries to access an element of a nested list.
+
+    ```javascript
+    var a = [1,2,[3,4],5]
+    a[2][1] = 8;  // Crash!!
+    ```
+
+    This works in the VM, however.
+
+- Multiline comments are not correctly highlighted in the Editor. They only work when `/**/` is typed in first, and then the comment is written.
