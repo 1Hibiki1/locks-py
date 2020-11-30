@@ -333,6 +333,7 @@ Strings are stored as null-terminated strings. For example, `"Hello"` will be st
 
 Floting point numbers are stored according to the following representation:
 ![double representation](https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/IEEE_754_Double_Floating_Point_Format.svg/618px-IEEE_754_Double_Floating_Point_Format.svg.png)
+
 For example, `3.14` will be stored as `0x00 0x20 0x00 0x00 0x00 0x00 0x01 0x3a`.
 
 ### Opcodes
@@ -417,6 +418,6 @@ Theme example: `defaultDark.json`
 
 ### Keyboard shortcuts
 
-`Ctrl+o`: Open file
-`Ctrl+s`: Save currently open file
-`Tab` and `Shift+Tab`: Add/remove 4-space indent to selection or current line
+* `Ctrl+o`: Open file
+* `Ctrl+s`: Save currently open file
+* `Tab` and `Shift+Tab`: Add/remove 4-space indent to selection or current line
