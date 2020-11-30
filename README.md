@@ -463,7 +463,7 @@ Theme example: `defaultDark.json`
 
 ## Known Bugs
 
-- The tree walk interpreter crashes when the lvalue of an assign statement tries to access an element of a nested list.
+- The tree walk interpreter crashes when the lvalue of an assign statement tries to index a nested list.
 
     ```javascript
     var a = [1,2,[3,4],5]
@@ -471,5 +471,24 @@ Theme example: `defaultDark.json`
     ```
 
     This works in the VM, however.
+
+- If an operand of a comparision expression with is a function, it works fine in the VM. If either operand is a function, the tree walk interpreter throws a type error. If the left operand is a function and the result of the expression is assigned to a variable, the semantic analyser throws a type error.
+
+    ``` javascript
+    fun a(){
+        print("hello");
+    }
+
+    // works in the VM, but tree walk interpreter throws a type error
+    println(a == a);
+
+    // this evaluates to true in the interpreter, but false in the VM
+    var k = 4 and a;
+
+    // semantic analyser throws a type error
+    var l = a and 4;
+    ```
+
+- The VM does nothing and continues with execution if there is a return statement outside a function. The tree walk interpreter throws a 'return outside function' syntax error.
 
 - Multiline comments are not correctly highlighted in the Editor. They only work when `/**/` is typed in first, and then the comment is written.

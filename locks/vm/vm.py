@@ -22,8 +22,6 @@ class VirtualMachine:
         self._ip: int = -1
         self._cur_ins: int = None
 
-        self._inFunction: bool = False  # to check that return is only used inside a function
-
         self._LOG: bool = False
 
 
@@ -390,7 +388,6 @@ class VirtualMachine:
 
 
     def execute_CALL_FUNCTION(self, i: int) -> None:
-        self._inFunction = True
         idx: int = self._advance()
         fnInfo: func_info = self._code_obj.getFromFP(idx)
 
@@ -422,17 +419,16 @@ class VirtualMachine:
         self._cur_frame.pushOpStack(builtinFunctionTable[fnName](args))
 
 
-    def execute_RETURN_VALUE(self, i: int) -> None:
-        if not self._inFunction:
-            raise SyntaxErr("'return' outside function", None)
-        else:
-            self._inFunction = False
-
+    def execute_RETURN_VALUE(self, i: int) -> None:        
         retVal: LObject = self._cur_frame.popOpStack()
-        ret_f: Frame = self._popFrame()
-        self._ip = ret_f.getReturnAddress()
-        self._cur_frame.copy(ret_f)
-        self._cur_frame.pushOpStack(retVal)
+
+        try:
+            ret_f: Frame = self._popFrame()
+            self._ip = ret_f.getReturnAddress()
+            self._cur_frame.copy(ret_f)
+            self._cur_frame.pushOpStack(retVal)
+        except:
+            pass
 
 
     def execute_BUILD_LIST(self, i: int) -> None:
