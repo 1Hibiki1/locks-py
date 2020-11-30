@@ -1,0 +1,12 @@
+{
+    "name": "Notepad",
+    "background": "#ffffff",
+    "foreground": "#000000",
+    "selectBackground": "#0000ff",
+    "inactiveselectbackground": "#0000ff",
+    "cursorColor": "#000000",
+    "keywords": "#000000",
+    "functionName": "#000000",
+    "strings": "#000000",
+    "comments": "#000000"
+}

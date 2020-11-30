@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class CallStack:
     def __init__(self):
         self.stack = []
@@ -18,14 +19,6 @@ class CallStack:
         for a in self.stack:
             output += str(a) + '\n'
         return output
-
-class ARType(Enum):
-    def __str__(self) -> str:
-        return str(self.value)
-
-    MAIN = 'main'
-    FUNCTION = 'function'
-    BLOCK = 'block'
 
 
 class Environment:
@@ -54,11 +47,21 @@ class Environment:
             output += f"{v} : {self._members[v]}\n"
         return output
 
+
+class ARType(Enum):
+    def __str__(self) -> str:
+        return str(self.value)
+
+    MAIN = 'main'
+    FUNCTION = 'function'
+    BLOCK = 'block'
+    
+
 class ActivationRecord:
     def __init__(self, typ: ARType):
         self.name: str = str(typ)
-        self.members = Environment()
-        self.type = typ
+        self.members: Environment = Environment()
+        self.type: ARType = typ
 
     def get(self, name):
         return self.members.get(name)
@@ -75,7 +78,6 @@ class ActivationRecord:
     def __repr__(self):
         output = f"AR {self.name}:\n{str(self.members)}"
         return output
-        
 
     def __str__(self):
         return self.__repr__()

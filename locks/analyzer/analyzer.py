@@ -1,48 +1,65 @@
-from typing import List, Union
+from typing import List, Union, Tuple
 
 from ..nodevisitor import NodeVisitor
 from ..error import NameErr, TypeErr, SyntaxErr
-from ..lexer.token import Token
+from ..lexer.token import Token, TokenType
 
 from .symboltable import SymbolTable
 from .symboltable import TypeSymbol, VariableSymbol, FunctionSymbol
 
 
+#
+# Checks if all names are defined, and performs some minimal static type checking
+# Inherits from NodeVisitor class, defined in locks/nodevisitor.py
+#
 class SemanticAnalyzer(NodeVisitor):
-    def __init__(self):
+    def __init__(self) -> None:
         self._mainST: SymbolTable = None
         self._currentST: SymbolTable = None
 
         self._tempArgs = []
 
         self.hadError: bool = False
-        self._errList: List[Union[NameErr, TypeErr]] = []
+        self._errList: List[Union[NameErr, TypeErr, SyntaxErr]] = []
 
         # to check if break and continue are outside loop
-        self._inLoop = False 
+        self._inLoop: bool = False 
     
+
     def getErrorList(self) -> List[Union[NameErr, TypeErr, SyntaxErr]]:
         return self._errList
     
+    #
+    # add error
+    #
     def _error(self, typ: str, msg: str, tok: Token) -> None:
         self.hadError = True
+
+        # name error
         if typ == 'n':
             self._errList.append(NameErr(msg, tok.line, tok.position))
+
+        # type error
         elif typ == 't':
             self._errList.append(TypeErr(msg, tok.line))
+
+        # syntax error
         elif typ == 's':
             # the only syntax error that can occur is continue
             #   or break outside loop
             self._errList.append(SyntaxErr(msg, tok.line))
 
 
+    #
+    # add builtin symbols to global symbol table
+    #
     def _initMainST(self) -> None:
         self._mainST.add(TypeSymbol("int"))
         self._mainST.add(TypeSymbol("float"))
         self._mainST.add(TypeSymbol("double"))
         self._mainST.add(TypeSymbol("string"))
 
-        builtinFunctions = [
+        builtinFunctions: List[str] = [
             "print", "println", "input",
             "len",
             "int", "str",
@@ -68,54 +85,68 @@ class SemanticAnalyzer(NodeVisitor):
             return 
 
         self._currentST.add(VariableSymbol(node.id.token.value))
+
         if node.exprNode != None:
             typ, tok = self.visit(node.exprNode)
             if typ == "function":
                 self._error('t', f"cannot assign function {tok.value} to variable", tok)
 
+
     def visit_AssignNode(self, node) -> None:
         self.visit(node.lvalue)
         typ, tok = self.visit(node.exprNode)
+
         if typ == "function":
             self._error('t', f"cannot assign function '{tok.value}' to variable", tok)
 
-    def visit_IdentifierNode(self, node) -> None:
+
+    def visit_IdentifierNode(self, node) -> Tuple[TokenType, TokenType]:
         if self._currentST.get(node.token.value) == None:
             self._error('n', f"name '{node.token.value}' not declared", node.token)
             return "identifier", node.token
+
         return self._currentST.get(node.token.value).type, node.token
 
-    def visit_ArrayNode(self, node) -> None:
+
+    def visit_ArrayNode(self, node) -> Tuple[str, TokenType]:
         tok = None
         for e in node.elements:
             typ, tok = self.visit(e)
 
         return "array", tok
 
-    def visit_ArrayAccessNode(self, node) -> None:
+
+    def visit_ArrayAccessNode(self, node) -> Tuple[str, str]:
         typ, tok = self.visit(node.base)
+
         if typ != "array" and typ != "variable":
             self._error('t', f"Type '{typ}' is not subscriptable", tok)
+
         self.visit(node.index)
         return "variable", ""
 
-    def visit_NumberNode(self, node) -> None:
+
+    def visit_NumberNode(self, node) -> Tuple[str, TokenType]:
         return "number", node.token
 
-    def visit_TrueNode(self, node) -> None:
+
+    def visit_TrueNode(self, node) -> Tuple[str, TokenType]:
         return "boolean", node.token
 
-    def visit_FalseNode(self, node) -> None:
+
+    def visit_FalseNode(self, node) -> Tuple[str, TokenType]:
         return "boolean", node.token
 
-    def visit_NilNode(self, node) -> None:
+
+    def visit_NilNode(self, node) -> Tuple[str, TokenType]:
         return "nil", node.token
 
-    def visit_StringNode(self, node) -> None:
+
+    def visit_StringNode(self, node) -> Tuple[str, TokenType]:
         return "string", node.token
 
 
-    def visit_AddNode(self, node) -> None:
+    def visit_AddNode(self, node) -> Tuple[TokenType, TokenType]:
         typl, tokl = self.visit(node.left)
         typr, tokr = self.visit(node.right)
         
@@ -125,7 +156,8 @@ class SemanticAnalyzer(NodeVisitor):
 
         return typl, tokl  
 
-    def visit_SubNode(self, node) -> None:
+
+    def visit_SubNode(self, node) -> Tuple[TokenType, TokenType]:
         typl, tokl = self.visit(node.left)
         typr, tokr = self.visit(node.right)
         
@@ -135,7 +167,8 @@ class SemanticAnalyzer(NodeVisitor):
 
         return typl, tokl
 
-    def visit_MulNode(self, node) -> None:
+
+    def visit_MulNode(self, node) -> Tuple[TokenType, TokenType]:
         typl, tokl = self.visit(node.left)
         typr, tokr = self.visit(node.right)
 
@@ -145,7 +178,8 @@ class SemanticAnalyzer(NodeVisitor):
 
         return typl, tokl
 
-    def visit_DivNode(self, node) -> None:
+
+    def visit_DivNode(self, node) -> Tuple[TokenType, TokenType]:
         typl, tokl = self.visit(node.left)
         typr, tokr = self.visit(node.right)
 
@@ -155,8 +189,8 @@ class SemanticAnalyzer(NodeVisitor):
 
         return typl, tokl
 
-    # FIX THIS
-    def visit_ModNode(self, node) -> None:
+
+    def visit_ModNode(self, node) -> Tuple[TokenType, TokenType]:
         typl, tokl = self.visit(node.left)
         typr, tokr = self.visit(node.right)
 
@@ -167,44 +201,60 @@ class SemanticAnalyzer(NodeVisitor):
         return typl, tokl
 
 
-    def visit_EqualNode(self, node) -> None:
-        self.visit(node.left)
+    def visit_EqualNode(self, node) -> Tuple[TokenType, TokenType]:
+        typl, tokl = self.visit(node.left)
         self.visit(node.right)
+        return typl, tokl
 
-    def visit_NotEqualNode(self, node) -> None:
-        self.visit(node.left)
+
+    def visit_NotEqualNode(self, node) -> Tuple[TokenType, TokenType]:
+        typl, tokl = self.visit(node.left)
         self.visit(node.right)
+        return typl, tokl
 
-    def visit_GreaterThanNode(self, node) -> None:
-        self.visit(node.left)
+
+    def visit_GreaterThanNode(self, node) -> Tuple[TokenType, TokenType]:
+        typl, tokl = self.visit(node.left)
         self.visit(node.right)
+        return typl, tokl
 
-    def visit_LessThanNode(self, node) -> None:
-        self.visit(node.left)
+
+    def visit_LessThanNode(self, node) -> Tuple[TokenType, TokenType]:
+        typl, tokl = self.visit(node.left)
         self.visit(node.right)
+        return typl, tokl
 
-    def visit_GreaterThanEqualNode(self, node) -> None:
-        self.visit(node.left)
+
+    def visit_GreaterThanEqualNode(self, node) -> Tuple[TokenType, TokenType]:
+        typl, tokl = self.visit(node.left)
         self.visit(node.right)
+        return typl, tokl
 
-    def visit_LessThanEqualNode(self, node) -> None:
-        self.visit(node.left)
+
+    def visit_LessThanEqualNode(self, node) -> Tuple[TokenType, TokenType]:
+        typl, tokl = self.visit(node.left)
         self.visit(node.right)
+        return typl, tokl
 
-    def visit_AndNode(self, node) -> None:
-        self.visit(node.left)
+
+    def visit_AndNode(self, node) -> Tuple[TokenType, TokenType]:
+        typl, tokl = self.visit(node.left)
         self.visit(node.right)
+        return typl, tokl
 
-    def visit_OrNode(self, node) -> None:
-        self.visit(node.left)
+
+    def visit_OrNode(self, node) -> Tuple[TokenType, TokenType]:
+        typl, tokl = self.visit(node.left)
         self.visit(node.right)
+        return typl, tokl
 
 
-    def visit_NegationNode(self, node) -> None:
+    def visit_NegationNode(self, node) -> Tuple[TokenType, TokenType]:
         typ, tok = self.visit(node.node)
         return typ, tok
 
-    def visit_NotNode(self, node) -> None:
+
+    def visit_NotNode(self, node) -> Tuple[str, str]:
         self.visit(node.node)
         return "variable", ""
 
@@ -216,9 +266,11 @@ class SemanticAnalyzer(NodeVisitor):
         if node.elseBlock != None:
             self.visit(node.elseBlock)
 
+
     def visit_ConditionalNode(self, node) -> None:
         self.visit(node.condition)
         self.visit(node.statement)
+
 
     def visit_WhileNode(self, node) -> None:
         self._inLoop = True
@@ -226,9 +278,10 @@ class SemanticAnalyzer(NodeVisitor):
         self.visit(node.statement)
         self._inLoop = False
 
+
     def visit_BlockNode(self, node, isFunction = False) -> None:
         if isFunction:
-            s = SymbolTable("block")
+            s: SymbolTable = SymbolTable("block")
             s.setEnclosingScope(self._currentST)
 
             for a in self._tempArgs:
@@ -245,18 +298,21 @@ class SemanticAnalyzer(NodeVisitor):
             for st in node.stmtList:
                 self.visit(st)
 
+
     def visit_ReturnNode(self, node) -> None:
         typ, tok = self.visit(node.expr)
         if typ == "function":
             self._error('t', f"Cannot return function '{tok.value}' from function", tok)
 
+
     def visit_ContinueNode(self, node) -> None:
         if not self._inLoop:
             self._error('s', "'continue' outside loop", node.tok)
 
+
     def visit_BreakNode(self, node) -> None:
         if not self._inLoop:
-            self._error('s', "'continue' outside loop", node.tok)
+            self._error('s', "'break' outside loop", node.tok)
 
 
     def visit_FunDeclNode(self, node) -> None:
@@ -271,7 +327,8 @@ class SemanticAnalyzer(NodeVisitor):
         
         self.visit_BlockNode(node.blockNode, True)
 
-    def visit_FunctionCallNode(self, node) -> None:
+
+    def visit_FunctionCallNode(self, node) -> Tuple[str, TokenType]:
         t, tok = self.visit(node.nameNode)
 
         if t != "function":
@@ -285,9 +342,10 @@ class SemanticAnalyzer(NodeVisitor):
 
         assert type(node.nameNode).__name__ == "IdentifierNode"
             
-        count = len(self._currentST.get(node.nameNode.token.value).argSymbols)
+        count: int = len(self._currentST.get(node.nameNode.token.value).argSymbols)
 
         if count != argc:
             self._error('t', f"Expected {count} positional argument(s) for '{tok.value}', got {argc}", tok)
 
         return "call", tok
+

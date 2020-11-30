@@ -1,5 +1,6 @@
 from typing import List
 
+
 class Symbol:
     def __init__(self, n: str, t: str = None) -> None:
         self.name: str = n
@@ -13,9 +14,11 @@ class Symbol:
     def __repr__(self) -> str:
         return self.__str__()
 
+
 class TypeSymbol(Symbol):
     def __init__(self, t: str) -> None:
         super().__init__(t)
+
 
 class VariableSymbol(Symbol):
     def __init__(self, n: str) -> None:
@@ -23,6 +26,7 @@ class VariableSymbol(Symbol):
 
     def setType(self, t: TypeSymbol) -> None:
         self.type = t
+
 
 class FunctionSymbol(Symbol):
     def __init__(self, n: str, b, args: List[Symbol] = []) -> None:
@@ -37,6 +41,7 @@ class SymbolTable:
         self._table = dict()
         self._enclosingTable: SymbolTable = None
 
+
     def get(self, s: str, restrict=False) -> Symbol:
         if restrict:
             return self._table.get(s)
@@ -49,14 +54,18 @@ class SymbolTable:
 
         return self._enclosingTable.get(s)
 
+
     def add(self, s: Symbol) -> None:
         self._table[s.name] = s
+
 
     def setEnclosingScope(self, s) -> None:
         self._enclosingTable = s
 
+
     def getEnclosingScope(self):
         return self._enclosingTable
+
 
     def __str__(self) -> str:
         output = ""
@@ -64,6 +73,7 @@ class SymbolTable:
             output += f"{self._table[e]}: {e}\n"
 
         return output
+
 
     def __repr__(self) -> str:
         return self.__str__()

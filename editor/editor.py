@@ -2,9 +2,15 @@ from tkinter import filedialog, messagebox
 import tkinter as tk
 import tkinter.ttk as ttk
 import os
+import platform
 import subprocess
 import math
 import json
+
+if platform.system() == "Darwin":
+    ctrl_key = "Command"
+else:
+    ctrl_key = "Control"
 
 class PreferencesScreen:
     def __init__(self, p) -> None:
@@ -125,7 +131,9 @@ class Editor:
         )
 
         self._textArea.bind("<KeyRelease>", self._handleKeyRelease)
-        self._textArea.bind("<Control-Key-s>", self._saveFile)
+
+        self._textArea.bind(f"<{ctrl_key}-Key-s>", self._saveFile)
+        self._textArea.bind(f"<{ctrl_key}-Key-o>", self._openFile)
         self._textArea.bind("<Tab>", self._tab)
         self._textArea.bind("<Shift-Tab>", self._shiftTab)
 
@@ -170,32 +178,40 @@ class Editor:
         return "break"
 
     def _shiftTab(self, e) -> str:
-        start = self._textArea.index(tk.SEL_FIRST)
-        start = f"{start[:start.index('.')]}.0"
+        try:
+            start = self._textArea.index(tk.SEL_FIRST)
+            start = f"{start[:start.index('.')]}.0"
 
-        end = self._textArea.index(tk.SEL_LAST)
-        end = f"{end[:end.index('.')]}.250"
+            end = self._textArea.index(tk.SEL_LAST)
+            end = f"{end[:end.index('.')]}.250"
 
-        selected = self._textArea.get(start, end)
-        selected = selected.split('\n')
+            selected = self._textArea.get(start, end)
+            selected = selected.split('\n')
+        except:
+            selected = None
         
-        for k,l in enumerate(selected):
-            i = 0
-            while i <= len(l):
-                if i >= 4:
-                    break
-                if len(selected[k]) > 0 and selected[k][0] == ' ':
-                    selected[k] = selected[k][1:]
-                i += 1
-        
-        output = ''
-        for i in selected:
-            output += i + '\n'
+        if selected:
+            for k,l in enumerate(selected):
+                i = 0
+                while i <= len(l):
+                    if i >= 4:
+                        break
+                    if len(selected[k]) > 0 and selected[k][0] == ' ':
+                        selected[k] = selected[k][1:]
+                    i += 1
+            
+            output = ''
+            for i in selected:
+                output += i + '\n'
 
-        self._textArea.delete(start, end)
-        self._textArea.insert(start, output)
-        self._textArea.mark_set(tk.INSERT, start)
-        self._textArea.tag_add("sel", start, end)
+            self._textArea.delete(start, end)
+            self._textArea.insert(start, output)
+            self._textArea.mark_set(tk.INSERT, start)
+            self._textArea.tag_add("sel", start, end)
+        else:
+            end: str = self._textArea.index(tk.INSERT)
+            start = f"{end[:end.index('.')]}.{int(end[end.index('.')+1:])-4}"
+            self._textArea.delete(start, end)
 
         return "break"
         
@@ -218,6 +234,7 @@ class Editor:
 
         runMenu = tk.Menu(self._menuBar, tearoff=0)
         runMenu.add_command(label="Run", command=self._runProgram)
+        runMenu.add_command(label="Run (debug)", command=self._runDebug)
         self._menuBar.add_cascade(label = "Run", menu=runMenu)
 
         settingsMenu = tk.Menu(self._menuBar, tearoff=0)
@@ -484,7 +501,8 @@ class Editor:
                 end = f"{line}.{char+cVar.get()}"
         except:
             pass
-
+    
+    # this doesn't work all the time
     def _highlightMultiLineComments(self) -> None:
         try:
             cVar = tk.IntVar()
@@ -540,7 +558,7 @@ class Editor:
         f.close()
         return s        
     
-    def _openFile(self) -> None:
+    def _openFile(self, e=None) -> None:
         name =  tk.filedialog.askopenfilename(
             initialdir = os.getcwd(), 
             title = "Select file",
@@ -596,3 +614,14 @@ class Editor:
                 self._saveFile()
 
         subprocess.Popen(f'python "{os.getcwd().replace(os.sep, "/")}/locks-interpreter.py" "{self._curOpenFile}"', creationflags=subprocess.CREATE_NEW_CONSOLE)
+
+    def _runDebug(self, e=None) -> None:
+        if self._curOpenFile == "untitled":
+            self._saveAsFile()
+
+        if not self._curFileIsSaved:
+            r = messagebox.askyesno("Save File", "Do you want to save the file before running?")
+            if r:
+                self._saveFile()
+
+        subprocess.Popen(f'python "{os.getcwd().replace(os.sep, "/")}/locks-interpreter.py" "{self._curOpenFile}" -d', creationflags=subprocess.CREATE_NEW_CONSOLE)

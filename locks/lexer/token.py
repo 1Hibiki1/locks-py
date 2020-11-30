@@ -1,12 +1,17 @@
 from enum import Enum
 from typing import Any, List
 
+#
+# Locks tokens
+#  To add a keyword, add an entry at the end of the Enum
+#
 class TokenType(Enum):
     ID = "identifier"
     NUMBER = "number"
     STRING = "string"
     EOF = None
 
+    # punctuation
     L_PAREN = '('
     R_PAREN = ')'
     L_SQUARE = '['
@@ -18,6 +23,7 @@ class TokenType(Enum):
     QUOTE = '"'
     S_QUOTE = "'"
 
+    # operators
     LESS_THAN = '<'
     GREATER_THAN = '>'
     LESS_THAN_EQ = '<='
@@ -33,6 +39,7 @@ class TokenType(Enum):
     MOD = '%'
     ASSIGN = '='
 
+    # keywords
     VAR = "var"
     FUNCTION = "fun"
     IF = "if"
@@ -50,6 +57,9 @@ class TokenType(Enum):
     NIL = "nil"
 
 
+#
+# Converts the TokenType enum into a dictionary (except keywords)
+#
 def makeTokenDict() -> dict:
     d = dict()
 
@@ -61,6 +71,10 @@ def makeTokenDict() -> dict:
 
     return d
 
+
+#
+# Makes a keyword dictionary from the TokenType enum
+#
 def makeKeywordDict() -> dict:
     d = dict()
 
@@ -75,7 +89,7 @@ def makeKeywordDict() -> dict:
 
 
 class Token:
-    def __init__(self, t: TokenType, v: any, l: int, pos: int):
+    def __init__(self, t: TokenType, v: any, l: int, pos: int) -> None:
         self.type: TokenType = t
         self.value: Any = v
         self.line: int = l
@@ -83,6 +97,17 @@ class Token:
 
     def __str__(self) -> str:
         return f"({self.line}:{self.position}){self.type}: {self.value}"
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    def __eq__(self, o) -> bool:
+        return (
+            self.type.value == o.type.value and
+            self.value == o.value and
+            self.line == o.line and
+            self.position == o.position
+        )
 
 
 tokenDict: dict = makeTokenDict()

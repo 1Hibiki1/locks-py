@@ -1,9 +1,11 @@
 from ..lexer.token import Token
 from typing import List, Union
 
+# base class for all nodes
 class ASTNode:
     def __repr__(self) -> str:
         return self.__str__()
+
 
 class ProgramNode(ASTNode):
     def __init__(self, declList: List[ASTNode]) -> None:
@@ -14,6 +16,7 @@ class ProgramNode(ASTNode):
         for d in self.declarationList:
             output += str(d) + '\n'
         return output
+
 
 class BlockNode(ASTNode):
     def __init__(self, stmtlist: List[ASTNode]) -> None:
@@ -26,6 +29,9 @@ class BlockNode(ASTNode):
         output += '}'
         return output
 
+
+# Declaration Nodes
+
 class VarDeclNode(ASTNode):
     def __init__(self, id: Token, exprNode: ASTNode=None) -> None:
         self.id: IdentifierNode = id
@@ -33,6 +39,7 @@ class VarDeclNode(ASTNode):
 
     def __str__(self) -> str:
         return f"vardecl: {str(self.id)} = {str(self.exprNode)}"
+
 
 class FunDeclNode(ASTNode):
     def __init__(self, id: Token, pList: List[Token], blk: BlockNode) -> None:
@@ -47,6 +54,7 @@ class FunDeclNode(ASTNode):
         output += ')' + str(self.blockNode)
         return output
 
+
 # Statement Nodes
 
 class AssignNode(ASTNode):
@@ -56,6 +64,7 @@ class AssignNode(ASTNode):
 
     def __str__(self) -> str:
         return f"assign: {str(self.lvalue)} = {str(self.exprNode)}"
+
 
 class ConditionalNode(ASTNode):
     def __init__(self, cond: ASTNode, stmt: ASTNode) -> None:
@@ -79,6 +88,7 @@ class IfNode(ASTNode):
         output += f"else {str(self.elseBlock)}"
         return output
 
+
 class ReturnNode(ASTNode):
     def __init__(self, exprNode: ASTNode, l: int) -> None:
         self.expr: ASTNode = exprNode
@@ -87,12 +97,14 @@ class ReturnNode(ASTNode):
     def __str__(self) -> str:
         return f"return: {str(self.expr)}"
 
+
 class ContinueNode(ASTNode):
     def __init__(self, t: Token) -> None:
         self.tok = t
 
     def __str__(self) -> str:
         return "continue"
+
 
 class BreakNode(ASTNode):
     def __init__(self, t: Token) -> None:
@@ -101,12 +113,14 @@ class BreakNode(ASTNode):
     def __str__(self) -> str:
         return "break"
 
+
 class WhileNode(ConditionalNode):
     def __init__(self, cond: ASTNode, stmt: ASTNode) -> None:
         super().__init__(cond, stmt)
 
     def __str__(self) -> str:
         return "while:" + super().__str__()
+
 
 # Binary operation nodes
 
@@ -119,57 +133,71 @@ class BinOpNode(ASTNode):
     def __str__(self):
         return f"({str(self.left)} {self.op} {str(self.right)})"
 
+
 class OrNode(BinOpNode):
     def __init__(self, l: ASTNode, r: ASTNode):
         super().__init__('or', l, r)
+
 
 class AndNode(BinOpNode):
     def __init__(self, l: ASTNode, r: ASTNode):
         super().__init__('and', l, r)
 
+
 class EqualNode(BinOpNode):
     def __init__(self, l: ASTNode, r: ASTNode):
         super().__init__('==', l, r)
+
 
 class NotEqualNode(BinOpNode):
     def __init__(self, l: ASTNode, r: ASTNode):
         super().__init__('!=', l, r)
 
+
 class GreaterThanNode(BinOpNode):
     def __init__(self, l: ASTNode, r: ASTNode):
         super().__init__('>', l, r)
+
 
 class GreaterThanEqualNode(BinOpNode):
     def __init__(self, l: ASTNode, r: ASTNode):
         super().__init__('>=', l, r)
 
+
 class LessThanNode(BinOpNode):
     def __init__(self, l: ASTNode, r: ASTNode):
         super().__init__('<', l, r)
+
 
 class LessThanEqualNode(BinOpNode):
     def __init__(self, l: ASTNode, r: ASTNode):
         super().__init__('<=', l, r)    
 
+
 class AddNode(BinOpNode):
     def __init__(self, l: ASTNode, r: ASTNode):
         super().__init__('+', l, r)
+
 
 class SubNode(BinOpNode):
     def __init__(self, l: ASTNode, r: ASTNode):
         super().__init__('-', l, r)
 
+
 class MulNode(BinOpNode):
     def __init__(self, l: ASTNode, r: ASTNode):
         super().__init__('*', l, r)
+
 
 class DivNode(BinOpNode):
     def __init__(self, l: ASTNode, r: ASTNode):
         super().__init__('/', l, r)
 
+
 class ModNode(BinOpNode):
     def __init__(self, l: ASTNode, r: ASTNode):
         super().__init__('%', l, r)
+
 
 # unary operation nodes
 
@@ -181,14 +209,18 @@ class UnaryOpNode(ASTNode):
     def __str__(self):
         return f"({self.op} {str(self.node)})"
 
+
 class NotNode(UnaryOpNode):
     def __init__(self, n: ASTNode) -> None:
         super().__init__('!', n)
+
 
 class NegationNode(UnaryOpNode):
     def __init__(self, n: ASTNode) -> None:
         super().__init__('-', n)
 
+
+# function call
 
 class FunctionCallNode(ASTNode):
     def __init__(self, name: ASTNode, arg: List[ASTNode]) -> None:
@@ -211,29 +243,36 @@ class PrimaryNode(ASTNode):
     def __str__(self) -> str:
         return f"{self.token.value}"
 
+
 class TrueNode(PrimaryNode):
     def __init__(self, tok: Token) -> None:
         super().__init__(tok)
+
 
 class FalseNode(PrimaryNode):
     def __init__(self, tok: Token) -> None:
         super().__init__(tok)
 
+
 class NilNode(PrimaryNode):
     def __init__(self, tok: Token) -> None:
         super().__init__(tok)
+
 
 class NumberNode(PrimaryNode):
     def __init__(self, tok: Token) -> None:
         super().__init__(tok)
 
+
 class StringNode(PrimaryNode):
     def __init__(self, tok: Token) -> None:
         super().__init__(tok)
 
+
 class IdentifierNode(PrimaryNode):
     def __init__(self, tok: Token) -> None:
         super().__init__(tok)
+
 
 class ArrayNode(ASTNode):
     def __init__(self, l: List[ASTNode]) -> None:

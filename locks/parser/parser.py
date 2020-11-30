@@ -3,33 +3,58 @@ from ..error import SyntaxErr
 from .ast import *
 from typing import List
 
+#
+# Takes a list of tokens, generates an AST from them. 
+#  AST nodes are defined in ast.py
+#
 class Parser:
     def __init__(self, tokList: List[Token]) -> None:
         self._tokList: List[Token] = tokList
-        self._idx: int = 0
+
+        self._idx: int = 0  # index of token that is currently being processed
         self._curToken: Token = tokList[0]
 
-        self.hadError = False
-        self._errList = []
+        self.hadError: bool = False
+        self._errList: List[SyntaxErr] = []
 
+    #
+    # main parser method that returns the constructed ast
+    #
     def getAST(self) -> ASTNode:
         return self._program()
 
+    #
+    # move forward by 'advBy' steps
+    #
     def _advance(self, advBy: int=1) -> None:
         self._idx += advBy
+
         if self._idx >= len(self._tokList):
             self._curToken = self._tokList[-1]
             return
+
         self._curToken = self._tokList[self._idx]
 
+
+    #
+    # Get next token without advancing
+    #
     def _peek(self) -> Token:
         if self._idx+1 >= len(self._tokList):
             return self._tokList[-1]
         return self._tokList[self._idx+1]
 
+
+    #
+    # Get previous token
+    #
     def _prevToken(self) -> Token:
         return self._tokList[self._idx-1]
 
+
+    #
+    # Adds an error to the error list, and synchronizes parser
+    #
     def _error(self, msg: str) -> None:
         self.hadError = True
         self._errList.append(
@@ -37,6 +62,12 @@ class Parser:
         )
         self._sync()
 
+
+    # 
+    # sync will attempt to discart tokens until the next statement if there is
+    #   a syntax error, so that the parser can continue and (hopefully) report
+    #   as many errors possible at once
+    #
     def _sync(self) -> None:
         while self._curToken.type not in [
             TokenType.SEMI,
@@ -49,13 +80,21 @@ class Parser:
         ]:
             self._advance()
 
+
+    #
+    # 'consumes' current token, adds and error if the token is not of type 'tt'
+    #
     def _consume(self, tt: TokenType) -> None:
         if self._curToken.type != tt:          
             self.hadError = True
+
+            # missing semi colon
             if tt == TokenType.SEMI:
                 self._errList.append(
                     SyntaxErr(f"Expected ';'", self._prevToken().line, self._prevToken().position)
                 )
+
+            # unexpected token
             else:
                 if self._curToken.value != '':
                     self._errList.append(
@@ -69,8 +108,15 @@ class Parser:
             
         self._advance()
 
+
     def getError(self) -> List[SyntaxErr]:
         return self._errList
+
+
+    #######################################################
+    # Methods that construct the ast                      #
+    #  based on grammar defined in locks/spec/grammar.txt #
+    #######################################################
 
     def _program(self) -> ProgramNode:
         declList: List[ASTNode] = []
@@ -80,6 +126,9 @@ class Parser:
             
         return ProgramNode(declList)
 
+
+    #------------Declarations------------#
+
     def _declaration(self) -> ASTNode:
         if self._curToken.type == TokenType.VAR:
             return self._varDecl()
@@ -87,6 +136,7 @@ class Parser:
             return self._funDecl()
         else:
             return self._statement()
+
 
     def _varDecl(self) -> ASTNode:
         self._consume(TokenType.VAR)
@@ -101,6 +151,7 @@ class Parser:
         self._consume(TokenType.SEMI)
         return VarDeclNode(IdentifierNode(id), exprNode)
 
+
     def _funDecl(self) -> ASTNode:
         self._consume(TokenType.FUNCTION)
 
@@ -109,15 +160,18 @@ class Parser:
 
         self._consume(TokenType.L_PAREN)
 
-        params: list = []
+        params: List[Token] = []
         if self._curToken.type != TokenType.R_PAREN:
             params = self._parameters()
 
         self._consume(TokenType.R_PAREN)
 
-        bl = self._block()
+        bl: BlockNode = self._block()
         
         return FunDeclNode(IdentifierNode(id), params, bl)
+
+
+    #------------Statements------------#
 
     def _statement(self) -> ASTNode:
         if self._curToken.type == TokenType.ID:
@@ -150,48 +204,47 @@ class Parser:
             return self._for()
 
         else:
-            '''
-            self._error("Expected statement")
-            self._advance()'''
             return self._exprStmt()
         
-
 
     def _exprStmt(self) -> ASTNode:
         stmt: ASTNode = self._expression()
         self._consume(TokenType.SEMI)
         return stmt
 
-    def _assignStmt(self) -> AssignNode:
-        #print(self._curToken)
-        id: Token = self._curToken
-        self._consume(TokenType.ID)
 
-        idx = None
-        if self._curToken.type == TokenType.L_SQUARE:
-            self._consume(TokenType.L_SQUARE)
-            idx: ASTNode = self._expression()
-            self._consume(TokenType.R_SQUARE)
+    def _assignStmt(self) -> AssignNode:
+        id: Token = self._curToken
+
+        # check for subscript
+        aac: ArrayAccessNode = None
+        if self._peek().type == TokenType.L_SQUARE:
+            aac = self._array_access()
+        else:
+            self._consume(TokenType.ID)
 
         self._consume(TokenType.ASSIGN)
 
         exprNode: ASTNode = self._expression()
         
         self._consume(TokenType.SEMI)
-        if idx != None:
-            return AssignNode(ArrayAccessNode(IdentifierNode(id), idx), exprNode)
+        if aac != None:
+            return AssignNode(aac, exprNode)
         
         return AssignNode(IdentifierNode(id), exprNode)
     
     
-    def _ifStmt(self) -> ASTNode:
+    def _ifStmt(self) -> IfNode:
         # if
         self._consume(TokenType.IF)
         self._consume(TokenType.L_PAREN)
+
         ifCond: ASTNode = self._expression()
+
         self._consume(TokenType.R_PAREN)
+
         ifBlk: BlockNode = self._statement()
-        ifst = ConditionalNode(ifCond, ifBlk)
+        ifst: ConditionalNode = ConditionalNode(ifCond, ifBlk)
 
         # elsif 
         elsifArr: List[ConditionalNode] = []
@@ -199,52 +252,75 @@ class Parser:
         while self._curToken.type == TokenType.ELSEIF:
             self._consume(TokenType.ELSEIF)
             self._consume(TokenType.L_PAREN)
+
             elifCond = self._expression()
+
             self._consume(TokenType.R_PAREN)
+
             elifBlk: BlockNode = self._statement()
             elsifArr.append(ConditionalNode(elifCond, elifBlk))
 
         # else
-        elseSt = None
+        elseSt: BlockNode = None
+
         if self._curToken.type == TokenType.ELSE:
             self._consume(TokenType.ELSE)
-            elseSt: BlockNode = self._statement()
+            elseSt = self._statement()
 
         return IfNode(ifst, elsifArr, elseSt)
 
-    def _return(self) -> ASTNode:
-        l: int = self._curToken.line
+
+    def _return(self) -> ReturnNode:
+        t: Token = self._curToken
         self._consume(TokenType.RETURN)
+
         expr: ASTNode = None
+
         if self._curToken.type != TokenType.SEMI:
             expr = self._expression()
-        self._consume(TokenType.SEMI)
-        return ReturnNode(expr, l)
 
-    def _continue(self) -> ASTNode:
+        self._consume(TokenType.SEMI)
+
+        if expr == None:
+            expr = NilNode(t)
+
+        return ReturnNode(expr, t.line)
+
+
+    def _continue(self) -> ContinueNode:
         t: Token = self._curToken
         self._consume(TokenType.CONTINUE)
         self._consume(TokenType.SEMI)
         return ContinueNode(t)
 
-    def _break(self) -> ASTNode:
+
+    def _break(self) -> BreakNode:
         t: Token = self._curToken
         self._consume(TokenType.BREAK)
         self._consume(TokenType.SEMI)
         return BreakNode(t)
 
-    def _while(self) -> ASTNode:
+
+    def _while(self) -> WhileNode:
         self._consume(TokenType.WHILE)
         self._consume(TokenType.L_PAREN)
+
         cond = self._expression()
+
         self._consume(TokenType.R_PAREN)
+
         blk: ASTNode = self._statement()
+
         return WhileNode(cond, blk)
 
-    def _for(self) -> ASTNode:
+    #
+    # for loop is just syntactic sugar for while with a counter
+    #
+    def _for(self) -> BlockNode:
         self._consume(TokenType.FOR)
         self._consume(TokenType.L_PAREN)
 
+        # first statement/ declaration inside the for loop parentheses
         decl: ASTNode = None
         if self._curToken.type == TokenType.VAR:
             decl = self._varDecl()
@@ -255,11 +331,13 @@ class Parser:
         else:
             decl = self._exprStmt()
 
+        # second statement inside the for loop parentheses
         cond: ASTNode = None
         if self._curToken.type != TokenType.SEMI:
             cond = self._expression()
         self._consume(TokenType.SEMI)
-            
+        
+        # third statement inside the for loop parentheses
         update: ASTNode = None
         if self._curToken.type != TokenType.R_PAREN:
             id = self._curToken
@@ -270,6 +348,7 @@ class Parser:
             
         self._consume(TokenType.R_PAREN)
 
+        # desugar for loop
         stmtlist: List[ASTNode] = []
 
         if decl != None:
@@ -282,7 +361,7 @@ class Parser:
             else:
                 blk = BlockNode([blk, update])
 
-        w = None
+        w: WhileNode = None
         if cond != None:
             w = WhileNode(cond, blk)
         else:
@@ -294,19 +373,21 @@ class Parser:
         return BlockNode(stmtlist)
 
 
-
     def _parameters(self) -> List[Token]:
-        paramList = [self._curToken]
+        paramList: List[Token] = [self._curToken]
         self._consume(TokenType.ID)
+
         while self._curToken.type == TokenType.COMMA:
             self._advance()
             paramList.append(self._curToken)
             self._consume(TokenType.ID)
+
         return paramList
 
-    def _block(self) -> List[ASTNode]:
+
+    def _block(self) -> BlockNode:
         self._consume(TokenType.L_CURLY)
-        stmtList = []
+        stmtList: List[ASTNode] = []
 
         while self._curToken.type not in [
             TokenType.R_CURLY, 
@@ -319,8 +400,11 @@ class Parser:
         return BlockNode(stmtList)
 
 
+    #------------Expressions------------#
+
     def _expression(self) -> ASTNode:
         return self._logicOr()
+
 
     def _logicOr(self) -> ASTNode:
         l: ASTNode = self._logicAnd()
@@ -332,6 +416,7 @@ class Parser:
 
         return l
 
+
     def _logicAnd(self) -> ASTNode:
         l: ASTNode = self._equality()
 
@@ -341,6 +426,7 @@ class Parser:
             l = AndNode(l, r)
 
         return l
+
 
     def _equality(self) -> ASTNode:
         l: ASTNode = self._comparison()
@@ -357,7 +443,9 @@ class Parser:
                 l = EqualNode(l, r)
             elif opType == TokenType.NOT_EQUAL:
                 l = NotEqualNode(l, r)
+
         return l
+
 
     def _comparison(self) -> ASTNode:
         l: ASTNode = self._term()
@@ -383,6 +471,7 @@ class Parser:
 
         return l
 
+
     def _term(self) -> ASTNode:
         l: ASTNode = self._factor()
 
@@ -401,6 +490,7 @@ class Parser:
                 l = SubNode(l, r)
 
         return l
+
 
     def _factor(self) -> ASTNode:
         l: ASTNode = self._unary()
@@ -423,6 +513,7 @@ class Parser:
 
         return l
 
+
     def _unary(self) -> ASTNode:
         n: ASTNode = None
 
@@ -437,9 +528,10 @@ class Parser:
 
         return n
 
+
     def _array_access(self) -> ASTNode:
         p: ASTNode = self._call()
-
+        
         while self._curToken.type == TokenType.L_SQUARE:
             self._advance()
             expr = self._expression()
@@ -447,6 +539,7 @@ class Parser:
             p = ArrayAccessNode(p, expr)
         
         return p
+
 
     def _call(self) -> ASTNode:
         p: ASTNode = self._primary()
@@ -463,29 +556,30 @@ class Parser:
         
         return p
 
+
     def _primary(self) -> ASTNode:
         if self._curToken.type == TokenType.TRUE:
-            t = self._curToken
+            t: Token = self._curToken
             self._advance()
             return TrueNode(t)
 
         elif self._curToken.type == TokenType.FALSE:
-            t = self._curToken
+            t: Token = self._curToken
             self._advance()
             return FalseNode(t)
 
         elif self._curToken.type == TokenType.NIL:
-            t = self._curToken
+            t: Token = self._curToken
             self._advance()
             return NilNode(t)
 
         elif self._curToken.type == TokenType.NUMBER:
-            t = self._curToken
+            t: Token = self._curToken
             self._advance()
             return NumberNode(t)
 
         elif self._curToken.type == TokenType.STRING:
-            t = self._curToken
+            t: Token = self._curToken
             self._advance()
             return StringNode(t)
 
@@ -502,19 +596,26 @@ class Parser:
 
         elif self._curToken.type == TokenType.L_SQUARE:
             self._advance()
+
             if self._curToken.type == TokenType.R_SQUARE:
                 self._consume(TokenType.R_SQUARE)
                 return ArrayNode([])
+
             a = ArrayNode(self._arguments())
             self._consume(TokenType.R_SQUARE)
+
             return a
 
         else:
             self._error("Expected expression")
 
+
     def _arguments(self) -> List[ASTNode]:
         argList: List[ASTNode] = [self._expression()]
+
         while self._curToken.type == TokenType.COMMA:
             self._advance()
             argList.append(self._expression())
+            
         return argList
+
