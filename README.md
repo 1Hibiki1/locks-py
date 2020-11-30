@@ -455,6 +455,8 @@ Theme example: `defaultDark.json`
 }
 ```
 
+Note: Syntax highlighting for multiline comments is disabled for now since it may cause other syntax highlighting problems. See [known bugs](#known-bugs).
+
 ### Keyboard shortcuts
 
 - `Ctrl+o`: Open file
@@ -491,4 +493,4 @@ Theme example: `defaultDark.json`
 
 - The VM does nothing and continues with execution if there is a return statement outside a function. The tree walk interpreter throws a 'return outside function' syntax error.
 
-- Multiline comments are not correctly highlighted in the Editor. They only work when `/**/` is typed in first, and then the comment is written.
+- Multiline comments are not correctly highlighted in the Editor. They only work when `/**/` is typed in first, and then the comment is written. When highlighted correctly, their foreground doesn't change even on change of theme. For now, syntax highlighting for multiline comments will be disabled.

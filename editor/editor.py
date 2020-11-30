@@ -501,7 +501,9 @@ class Editor:
 
     def _highlightComments(self) -> None:
         self._highlightSingleLineComments()
-        self._highlightMultiLineComments()
+
+        # highlight multiline comments needs to be fixed
+        # self._highlightMultiLineComments()
 
     def _highlightSingleLineComments(self) -> None:
         try:
