@@ -49,7 +49,7 @@ python locks-editor.py
 
 An editor window should pop up. Start coding! You can find examples at `examples/`. To run a program, open a locks file through `File -> Open`, and choose `Run -> Run(debug)` from the menu bar. For more details, check the [Editor](#editor) section.
 
-You can run a lox program by using the interpreter as:
+To run a locks program from the command line, run
 
 ``` console
 python locks-interpreter.py <path>
