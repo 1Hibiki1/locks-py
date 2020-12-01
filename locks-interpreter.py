@@ -67,8 +67,9 @@ def main():
     except FileNotFoundError:
         print(f"Error: file '{args.path}' not found")
         return 1
-    except:
+    except Exception as e:
         print(f"Error opening file '{args.path}'")
+        print(f"Error: {e}")
         return 1
 
     # lexer - split into tokens
@@ -106,8 +107,9 @@ def main():
             print("Please enter a valid filename or a path to a file. Note that if the file is in a subdirectory, the subdirectory must already exist. If the specified file does not exist, it will be created.")
             input("\nPress Enter to continue...")
             return -1
-        except:
+        except Exception as e:
             print(f"Unable to open '{args.genASTdot}'. Please enter a valid filename or make sure that the script has enough permissions.")
+            print(f"Error: {e}")
             input("\nPress Enter to continue...")
             return -1
 
@@ -119,10 +121,11 @@ def main():
             print(f"'requests' module was not installed or found. A dot file was written to {args.genASTdot}.")
             input("\nPress Enter to continue...")
             return -1
-        except:
+        except Exception as e:
             f.write(dot)
             f.close()
             print(f"An unexpected error occured when importing the 'requests' module. A dot file was written to {args.genASTdot}.")
+            print(f"Error: {e}")
             input("\nPress Enter to continue...")
             return -1
         finally:
@@ -148,8 +151,9 @@ def main():
             print(f"'cariosvg' module was not installed or found. An svg file was written to {os.path.dirname(args.genASTdot)}/{os.path.basename(args.genASTdot)}.svg. You can open this svg file to view the image generated from the AST.")
             input("\nPress Enter to continue...")
             return -1
-        except:
+        except Exception as e:
             print(f"An unexpected error occured when importing the 'cairosvg' module. An svg file was written to {os.path.dirname(args.genASTdot)}/{os.path.basename(args.genASTdot)}.svg. You can open this svg file to view the image generated from the AST.")
+            print(f"Error: {e}")
             input("\nPress Enter to continue...")
             return -1
 
@@ -159,8 +163,9 @@ def main():
                 write_to=f"{os.path.dirname(args.genASTdot)}/{os.path.basename(args.genASTdot)}.png",
                 scale=0.5
             )
-        except:
+        except Exception as e:
             print(f"An unexpected error occured while converting {args.genASTdot} to svg. Please visit the Locks github repository (https://github.com/1Hibiki1/locks-py) for more information about how to render the generated dot file. If the dot file doesn't render correctly, open an issue.\n")
+            print(f"Error: {e}")
             input("\nPress Enter to continue...")
             return -1
 
@@ -170,8 +175,9 @@ def main():
             print(f"'Pillow' module was not installed or found. An png file was written to {os.path.dirname(args.genASTdot)}/{os.path.basename(args.genASTdot)}.png. You can open this png file to view the image generated from the AST.")
             input("\nPress Enter to continue...")
             return -1
-        except:
+        except Exception as e:
             print(f"An unexpected error occured when importing the 'Pillow' module. An png file was written to {os.path.dirname(args.genASTdot)}/{os.path.basename(args.genASTdot)}.png. You can open this png file to view the image generated from the AST.")
+            print(f"Error: {e}")
             input("\nPress Enter to continue...")
             return -1
 
