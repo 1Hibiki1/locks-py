@@ -255,6 +255,7 @@ class Editor:
         runMenu = tk.Menu(self._menuBar, tearoff=0)
         runMenu.add_command(label="Run", command=self._runProgram)
         runMenu.add_command(label="Run (debug)", command=self._runDebug)
+        runMenu.add_command(label="Visualize AST", command=self._visualize)
         self._menuBar.add_cascade(label = "Run", menu=runMenu)
 
         settingsMenu = tk.Menu(self._menuBar, tearoff=0)
@@ -653,4 +654,25 @@ class Editor:
             subprocess.Popen(f'{self._preferences["pyinterp"]} "{os.getcwd().replace(os.sep, "/")}/locks-interpreter.py" "{self._curOpenFile}" -d', creationflags=subprocess.CREATE_NEW_CONSOLE)
         else:
             subprocess.Popen(f'{self._preferences["pyinterp"]} "{os.getcwd().replace(os.sep, "/")}/locks-interpreter.py" "{self._curOpenFile}" -d', shell=True)
+
+    def _visualize(self, e=None) -> None:
+        if self._curOpenFile == "untitled":
+            self._saveAsFile()
+
+        if not self._curFileIsSaved:
+            r = messagebox.askyesno("Save File", "Do you want to save the file before visualizing AST?")
+            if r:
+                self._saveFile()
+
+        try:
+            if "visualize" not in list(os.walk(f"{os.getcwd().replace(os.sep, '/')}"))[0][1]:
+                os.mkdir(f"{os.getcwd().replace(os.sep, '/')}/visualize")
+        except:
+            messagebox.showerror("Error", f"The 'visualize' folder does not exist in the current directory, and Locks was unable to create it. Try adding a 'visualize' directory to current directory manually, and try again.")
+            return
+
+        if platform.system() == "Windows":
+            subprocess.Popen(f'{self._preferences["pyinterp"]} "{os.getcwd().replace(os.sep, "/")}/locks-interpreter.py" "{self._curOpenFile}" -g "{os.getcwd().replace(os.sep, "/")}/visualize/{os.path.basename(self._curOpenFile)}"', creationflags=subprocess.CREATE_NEW_CONSOLE)
+        else:
+            subprocess.Popen(f'{self._preferences["pyinterp"]} "{os.getcwd().replace(os.sep, "/")}/locks-interpreter.py" "{self._curOpenFile}" -g "{os.getcwd().replace(os.sep, "/")}/visualize/{os.path.basename(self._curOpenFile)}"', shell=True)
 

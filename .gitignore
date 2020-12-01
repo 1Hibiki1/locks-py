@@ -1,5 +1,7 @@
 # from https://github.com/github/gitignore/blob/master/Python.gitignore
 
+visualize
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
