@@ -135,6 +135,8 @@ Locks supports the following datatypes:
 - `Boolean`: Can be `true` or `false`
 - `Array`: A sequence of Locks datatypes, surrounded by `[` and `]` and separated by `,`. For example: `[1, "hello", [true, 2]]`
 
+The following are falsey values in locks: `0`, `""`, `[]`, `false`, `nil`, and functions.
+
 ### Variables
 
 Variables are declared using the `var` keyword.
@@ -519,9 +521,6 @@ The AST can also be visualized from the editor by selecting the `Run -> Visualiz
 
     // works in the VM, but tree walk interpreter throws a type error
     println(a == a);
-
-    // this evaluates to true in the interpreter, but false in the VM
-    var k = 4 and a;
 
     // semantic analyser throws a type error
     var l = a and 4;

@@ -215,14 +215,17 @@ class VirtualMachine:
         r: LObject = self._cur_frame.popOpStack()
         l: LObject = self._cur_frame.popOpStack()
 
+        if self._LOG: print(f"and {l.value}, {r.value}")
+        
         if not self._isTruthy(l):
             self._cur_frame.pushOpStack(Boolean("false"))
-        elif not self._isTruthy(r):
+            return
+        
+        if not self._isTruthy(r):
             self._cur_frame.pushOpStack(Boolean("false"))
-        else:
-            self._cur_frame.pushOpStack(Boolean("true"))
-
-        if self._LOG: print(f"and {l.value}, {r.value}")
+            return
+            
+        self._cur_frame.pushOpStack(Boolean("true"))
 
 
     def execute_BINARY_OR(self, i: int) -> None:

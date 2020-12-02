@@ -118,13 +118,13 @@ def main():
         except ModuleNotFoundError:
             f.write(dot)
             f.close()
-            print(f"'requests' module was not installed or found. A dot file was written to {args.genASTdot}.")
+            print(f"'requests' module was not installed or found. A dot file was written to {args.genASTdot}. Install the requests module with 'pip install requests', or visit https://github.com/1Hibiki1/locks-py#visualizing-the-ast for more information.")
             input("\nPress Enter to continue...")
             return -1
         except Exception as e:
             f.write(dot)
             f.close()
-            print(f"An unexpected error occured when importing the 'requests' module. A dot file was written to {args.genASTdot}.")
+            print(f"An unexpected error occured when importing the 'requests' module. A dot file was written to {args.genASTdot}. For more information, visit https://github.com/1Hibiki1/locks-py#visualizing-the-ast.")
             print(f"Error: {e}")
             input("\nPress Enter to continue...")
             return -1
@@ -138,7 +138,7 @@ def main():
             print("Working on it...\n")
             r = requests.get(f'https://quickchart.io/graphviz?&graph={requests.utils.quote(dot)}', timeout=15)
         except (requests.ConnectionError, requests.Timeout):
-            print(f"Unable to render {args.genASTdot}. Either there is no internet connection, or the generated dot file was too large (> 2048 characters). Visit the Locks github repository (https://github.com/1Hibiki1/locks-py) for more information about how to render the generated dot file.\n")
+            print(f"Unable to render {args.genASTdot}. Either there is no internet connection, or the generated dot file was too large (> 2048 characters). Visit https://github.com/1Hibiki1/locks-py#visualizing-the-ast for more information about how to render the generated dot file.\n")
             input("\nPress Enter to continue...")
             return -1
 
@@ -148,11 +148,11 @@ def main():
         try:
             import cairosvg
         except ModuleNotFoundError:
-            print(f"'cariosvg' module was not installed or found. An svg file was written to {os.path.dirname(args.genASTdot)}/{os.path.basename(args.genASTdot)}.svg. You can open this svg file to view the image generated from the AST.")
+            print(f"'cariosvg' module was not installed or found. An svg file was written to {os.path.dirname(args.genASTdot)}/{os.path.basename(args.genASTdot)}.svg. You can open this svg file to view the image generated from the AST. For more information, visit https://github.com/1Hibiki1/locks-py#visualizing-the-ast.")
             input("\nPress Enter to continue...")
             return -1
         except Exception as e:
-            print(f"An unexpected error occured when importing the 'cairosvg' module. An svg file was written to {os.path.dirname(args.genASTdot)}/{os.path.basename(args.genASTdot)}.svg. You can open this svg file to view the image generated from the AST.")
+            print(f"An unexpected error occured when importing the 'cairosvg' module. An svg file was written to {os.path.dirname(args.genASTdot)}/{os.path.basename(args.genASTdot)}.svg. You can open this svg file to view the image generated from the AST. For more information, visit https://github.com/1Hibiki1/locks-py#visualizing-the-ast.")
             print(f"Error: {e}")
             input("\nPress Enter to continue...")
             return -1
@@ -164,7 +164,7 @@ def main():
                 scale=0.5
             )
         except Exception as e:
-            print(f"An unexpected error occured while converting {args.genASTdot} to svg. Please visit the Locks github repository (https://github.com/1Hibiki1/locks-py) for more information about how to render the generated dot file. If the dot file doesn't render correctly, open an issue.\n")
+            print(f"An unexpected error occured while converting {args.genASTdot} to svg. Visit https://github.com/1Hibiki1/locks-py#visualizing-the-ast for more information about how to render the generated dot file. If the dot file doesn't render correctly, open an issue.\n")
             print(f"Error: {e}")
             input("\nPress Enter to continue...")
             return -1
@@ -172,11 +172,11 @@ def main():
         try:
             from PIL import Image, ImageTk
         except ModuleNotFoundError:
-            print(f"'Pillow' module was not installed or found. An png file was written to {os.path.dirname(args.genASTdot)}/{os.path.basename(args.genASTdot)}.png. You can open this png file to view the image generated from the AST.")
+            print(f"'Pillow' module was not installed or found. An png file was written to {os.path.dirname(args.genASTdot)}/{os.path.basename(args.genASTdot)}.png. You can open this png file to view the image generated from the AST. For more information, visit https://github.com/1Hibiki1/locks-py#visualizing-the-ast.")
             input("\nPress Enter to continue...")
             return -1
         except Exception as e:
-            print(f"An unexpected error occured when importing the 'Pillow' module. An png file was written to {os.path.dirname(args.genASTdot)}/{os.path.basename(args.genASTdot)}.png. You can open this png file to view the image generated from the AST.")
+            print(f"An unexpected error occured when importing the 'Pillow' module. An png file was written to {os.path.dirname(args.genASTdot)}/{os.path.basename(args.genASTdot)}.png. You can open this png file to view the image generated from the AST. For more information, visit https://github.com/1Hibiki1/locks-py#visualizing-the-ast.")
             print(f"Error: {e}")
             input("\nPress Enter to continue...")
             return -1

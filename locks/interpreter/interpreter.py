@@ -46,6 +46,9 @@ class Interpeter(NodeVisitor):
                 return False
             return True
 
+        elif self._getObjType(obj) == "Function":
+            return False
+
         return True
 
     #
