@@ -497,7 +497,7 @@ For example:
 python locks-interpreter.py examples/fibonacci.lks -g fib.dot
 ```
 
-The interpreter will write the generated dot code to a file at the location specified by the argument (which must be a filename). It will then try to use the [QuickChart GraphViz API](https://quickchart.io/documentation/graphviz-api/) to generate and get an svg file from the dot file, use chairo to convert it to a png file, and then how the image on a window through Pillow and Tkinter. Pillow, requests, and chairo will need to be installed separately using pip for this to work. If not installed, the dot file alone will be generated. The generated code can be pasted to [GraphViz Online](https://dreampuf.github.io/GraphvizOnline/) to render it.
+The interpreter will write the generated dot code to a file at the location specified by the argument (which must be a filename). It will then try to use the [QuickChart GraphViz API](https://quickchart.io/documentation/graphviz-api/) to generate and get an svg file from the dot file, use chairo to convert it to a png file, and then show the image on a window through Pillow and Tkinter. Pillow, requests, and chairo will need to be installed separately using pip for this to work. If not installed, the dot file alone will be generated. The generated code can be pasted to [GraphViz Online](https://dreampuf.github.io/GraphvizOnline/) to render it.
 
 The AST can also be visualized from the editor by selecting the `Run -> Visualize AST` option.
 
@@ -522,7 +522,7 @@ The AST can also be visualized from the editor by selecting the `Run -> Visualiz
     // works in the VM, but tree walk interpreter throws a type error
     println(a == a);
 
-    // semantic analyser throws a type error
+    // semantic analyzer throws a type error
     var l = a and 4;
     ```
 
