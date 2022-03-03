@@ -1,5 +1,5 @@
 # Locks
-
+[Note: I made this during my first sem at uni, so expect some not-so-well-written code ;)]
 Locks is an imperative, dynamically typed, procedure oriented scripting language based on the [lox](https://github.com/munificent/craftinginterpreters) language. Locks-py is the python implementation of locks. While locks and lox share almost the same grammar, the locks implementation is not based on that of lox. This was made as a project for an introductory programming course.
 
 ## Contents
